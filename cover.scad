@@ -1,7 +1,7 @@
 /*
    Project: Cover for Logidule
    File: cover.scad
-   Version: 0.1
+   Version: 0.2
    Create by: Rom1 <rom1@canel.ch> - CANEL - https://www.canel.ch
    Date: 25/10/2018
    Licence: GNU GENERAL PUBLIC LICENSE v3
