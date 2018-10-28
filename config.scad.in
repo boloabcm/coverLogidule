@@ -1,0 +1,38 @@
+/*
+   Project: Cover for Logidule
+   File: cover.scad
+   Version: 0.1
+   Create by: Rom1 <rom1@canel.ch> - CANEL - https://www.canel.ch
+   Date: 25/10/2018
+   Licence: GNU GENERAL PUBLIC LICENSE v3
+   Language: OpenSCAF
+   Description
+*/
+			  /* x  y */
+logidule_size = [2, 1];
+
+drilling_plane = [
+  /*dia   x   y */
+	[2,  12, 15],
+];
+
+holder_plane = [
+ /* [Dia   x  y  height] */
+	[2.5, 25, 0, 5]
+];
+
+/* Clip */
+with_clip = true;								/* true or false */
+clip_pos = [3.5, 8.8];							/* Clip [X, Y] */
+clip_holder_v = [1.2, 3, 7.3];
+
+/* Cover setting */
+cover_thinkness = 2;
+cs = 39.8;
+cover_side = [cs, cs];
+cover_open = [2.75, 5];
+cover_open_start = 7;
+cover_open_inter = 20;
+
+
+//  vim: ft=openscad tw=100 noet ts=4 sw=4

@@ -1,131 +1,140 @@
-thinkness = 2;
+/*
+   Project: Cover for Logidule
+   File: cover.scad
+   Version: 0.1
+   Create by: Rom1 <rom1@canel.ch> - CANEL - https://www.canel.ch
+   Date: 25/10/2018
+   Licence: GNU GENERAL PUBLIC LICENSE v3
+   Language: OpenSCAF
+   Description
+*/
 
-open_x = 2.75;
-open_y = 5;
+include <config.scad>
 
-side_y = 39.8;
-side_x = side_y*2;
-
-drill = 2;
-drill1_x = 12;
-drill1_y = 15;
-drill2_x = 12;
-drill2_y = 25;
-
-esp_x = 43.5;
-esp_y = 20.5;
-esp_pos_x = 25;
-esp_pos_y = 10;
-
-//function openH = cube([open_x, open_y, thinkness]);
-//function openV = cube([open_y, open_x, thinkness]);
-//function transV = side_y - open_x;
-
-transV = side_y - open_x;
-transH = side_x - open_x;
-
-module openH()
+module drilling(param)
 {
-	cube([open_x, open_y, thinkness]);
+	for(i_drill = [0:len(param)-1])
+		translate([param[i_drill][1], param[i_drill][2], 0])
+			cylinder(h = cover_thinkness, d = param[i_drill][0], $fn=60);
 }
 
-module openV()
+module holder(param)
 {
-	cube([open_y, open_x, thinkness]);
-}
-
-module clip(sens = "d")
-{
-	module _clip()
-	{
-		module gligli()
-		{
-			rotate([90,0,0]) translate([0,0,-3])
-			linear_extrude(height=3) polygon([[0,0], [0.5,0], [0,1.3]], [[0,1,2]]);
-		}
-		cube([1.2, 3, 7.3]);
-		//translate([1.2, 0, 6]) cube([0.5, 3, 1.3]);
-		translate([1.2, 0, 6]) gligli();
-	}
-
-	if(sens == "r")
-	{
-		translate([0, 0, 0])
-		{
-			_clip();
-		}
-	}
-	if(sens == "b")
-	{
-		rotate([0,0,90]) translate([0, -3, 0])
-		{
-			_clip();
-		}
-	}
-	if(sens == "l")
-	{
-		rotate([0,0,180]) translate([-1.2, -3, 0])
-		{
-			_clip();
-		}
-	}
-	if(sens == "f")
-	{
-		rotate([0,0,270]) translate([-1.2, 0,0])
-		{
-			_clip();
-		}
-	}
-}
-
-module socle()
-{
-	hight = 5;
-	dia = 2.5;
 	thinkness = 1.6;
 
-	difference()
+	for( i_holder = [0:len(param)-1] )
 	{
-		cylinder(h=hight, d=dia+2*thinkness, $fn=60);
-		/*translate([thinkness, thinkness, 0])*/ cylinder(h=hight, d=dia, $fn=60);
+		h   = param[i_holder][3];
+		dia = param[i_holder][0];
+
+		translate([param[i_holder][1], param[i_holder][2], thinkness]) 
+		difference()
+		{
+			cylinder(h = h, d = dia+2*thinkness, $fn=60);
+			cylinder(h = h, d = dia, $fn=60);
+		}
 	}
 }
 
-//*
-difference()
+module create_cover()
 {
-	cube([side_x, side_y, thinkness]);
-	translate([7,  0, 0]) openV();
-	translate([27, 0, 0]) openV();
-	translate([47, 0, 0]) openV();
-	translate([67, 0, 0]) openV();
-	translate([7,  transV, 0]) openV();
-	translate([27, transV, 0]) openV();
-	translate([47.5, transV, 0]) openV();
-	translate([67.5, transV, 0]) openV();
-	translate([0,  7, 0]) openH();
-	translate([0, 27, 0]) openH();
-	translate([transH,  7, 0]) openH();
-	translate([transH, 27, 0]) openH();
-
-	translate([drill1_x, drill1_y, 0]) cylinder(h=thinkness, d=drill, $fn=60);
-	translate([drill2_x, drill2_y, 0]) cylinder(h=thinkness, d=drill, $fn=60);
+	cube([cover_side[0]*logidule_size[0], cover_side[1]*logidule_size[1], cover_thinkness]);
 }
 
-	translate([8.5, 3.5, thinkness]) clip("f");
-	translate([side_x-11.3, 3.5, thinkness]) clip("f");
-	translate([8.5, side_y-3.5-1.2, thinkness]) clip("b");
-	translate([side_x-11.3, side_y-3.5-1.2, thinkness]) clip("b");
-	translate([side_x-3.5-1.2, side_y-11.5, thinkness]) clip("r");
-	translate([side_x-3.5-1.2, 8.5, thinkness]) clip("r");
-	translate([3.5, 8.5, thinkness]) clip("l");
-	translate([3.5, side_y-11.5, thinkness]) clip("l");
+module create_opening_cover()
+{
+	/* Create two sides */
+	for(b = [0:1])
+	{
+		/* For X */
+		for(i = [0:logidule_size[0]*2])
+			translate([cover_open_start+cover_open_inter*i, 
+					   b*((logidule_size[1]*cover_side[0])-cover_open[0]),
+					   0])
+				cube([cover_open[1], cover_open[0], cover_thinkness]);
+		/* For Y */
+		for(i = [0:logidule_size[1]*2])
+			translate([b*((logidule_size[0]*cover_side[0])-cover_open[0]),
+					   cover_open_start+cover_open_inter*i,
+					   0])
+				cube([cover_open[0], cover_open[1], cover_thinkness]);
+	}
+}
 
-	translate([esp_pos_x, esp_pos_y, thinkness]) socle();
-	translate([esp_pos_x+esp_x, esp_pos_y, thinkness]) socle();
-	translate([esp_pos_x, esp_pos_y+esp_y, thinkness]) socle();
-	translate([esp_pos_x+esp_x, esp_pos_y+esp_y, thinkness]) socle();
-//*/
+module create_clips()
+{
+	module clip(sens)
+	{
+		module _clip()
+		{
+			cube([clip_holder_v[0], clip_holder_v[1], clip_holder_v[2]]);
+			translate([clip_holder_v[0], 0, clip_holder_v[2]-clip_holder_v[0]])
+				rotate([90, 0, 0])
+					translate([0,0,-clip_holder_v[1]])
+						linear_extrude(height = clip_holder_v[1])
+							polygon([[0,0], [0.5,0], [0,clip_holder_v[0]]], [[0,1,2]]);
+		}
+		if(sens == 3)
+			translate([0, 0, 0])
+				_clip();
+		if(sens == 2)
+			rotate([0, 0, 90])
+				translate([0, -clip_holder_v[1], 0])
+					_clip();
+		if(sens == 1)
+			rotate([0, 0, 180])
+				translate([-clip_holder_v[0], -clip_holder_v[1], 0])
+					_clip();
+		if(sens == 0)
+			rotate([0, 0, 270])
+				translate([-clip_holder_v[0], 0,0])
+					_clip();
+	}
 
-//socle();
-//clip("r");
+	translate([clip_pos[1],
+			   clip_pos[0],
+			   0])
+		clip(0);
+	translate([cover_side[1]*logidule_size[0]-clip_holder_v[1]-clip_pos[1],
+			   clip_pos[0],
+			   0])
+		clip(0);
+	translate([clip_pos[0],
+			   clip_pos[1],
+			   0])
+		clip(1);
+	translate([clip_pos[0],
+			   cover_side[0]*logidule_size[1]-clip_holder_v[1]-clip_pos[1],
+			   0])
+		clip(1);
+	translate([clip_pos[1],
+			   cover_side[0]*logidule_size[1]-clip_holder_v[0]-clip_pos[0],
+			   0])
+		clip(2);
+	translate([cover_side[1]*logidule_size[0]-clip_holder_v[1]-clip_pos[1],
+			   cover_side[0]*logidule_size[1]-clip_holder_v[0]-clip_pos[0],
+			   0])
+		clip(2);
+	translate([cover_side[0]*logidule_size[0]-clip_holder_v[0]-clip_pos[0],
+			   clip_pos[1],
+			   0])
+		clip(3);
+	translate([cover_side[0]*logidule_size[0]-clip_holder_v[0]-clip_pos[0],
+			   cover_side[0]*logidule_size[1]-clip_holder_v[1]-clip_pos[1],
+			   0])
+		clip(3);
+}
+
+
+/* Main code */
+difference()
+{
+	create_cover(logidule_size);
+	create_opening_cover(logidule_size);
+	drilling(drilling_plane);
+}
+	holder(holder_plane);
+	if(with_clip) create_clips();
+
+
+//  vim: ft=openscad tw=100 noet ts=4 sw=4

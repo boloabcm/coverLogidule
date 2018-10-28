@@ -1,2 +1,4 @@
+config.scad*
+!config.scad.in
 *.deps
 *.stl
